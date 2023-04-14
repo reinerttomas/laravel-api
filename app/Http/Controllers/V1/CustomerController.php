@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Filters\V1\CustomerFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Http\Resources\V1\CustomerCollection;
 use App\Http\Resources\V1\CustomerResource;
 use App\Models\Customer;
-use App\Services\V1\CustomerQuery;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
@@ -18,14 +18,18 @@ class CustomerController extends Controller
      */
     public function index(Request $request): CustomerCollection
     {
-        $filter = new CustomerQuery() ;
-        $queryItems = $filter->transform($request);
+        $filter = new CustomerFilter();
+        $queries = $filter->transform($request);
 
-        if ($queryItems === []) {
+        if ($queries === []) {
             return new CustomerCollection(Customer::paginate());
         }
 
-        return new CustomerCollection(Customer::where($queryItems)->paginate());
+        $customers = Customer::where($queries)
+            ->paginate()
+            ->appends($request->query());
+
+        return new CustomerCollection($customers);
     }
 
     /**
