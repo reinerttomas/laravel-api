@@ -19,13 +19,9 @@ class InvoiceController extends Controller
     public function index(Request $request): InvoiceCollection
     {
         $filter = new InvoiceFilter();
-        $queries = $filter->transform($request);
+        $filterItems = $filter->transform($request);
 
-        if ($queries === []) {
-            return new InvoiceCollection(Invoice::paginate());
-        }
-
-        $invoices = Invoice::where($queries)
+        $invoices = Invoice::where($filterItems)
             ->paginate()
             ->appends($request->query());
 

@@ -19,13 +19,15 @@ class CustomerController extends Controller
     public function index(Request $request): CustomerCollection
     {
         $filter = new CustomerFilter();
-        $queries = $filter->transform($request);
+        $filterItems = $filter->transform($request);
 
-        if ($queries === []) {
-            return new CustomerCollection(Customer::paginate());
+        $customers = Customer::where($filterItems);
+
+        if ($request->query('nested')) {
+            $customers->with('invoices');
         }
 
-        $customers = Customer::where($queries)
+        $customers = $customers
             ->paginate()
             ->appends($request->query());
 
@@ -53,6 +55,10 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer): CustomerResource
     {
+        if (request()->query('nested')) {
+            $customer->load('invoices');
+        }
+
         return new CustomerResource($customer);
     }
 

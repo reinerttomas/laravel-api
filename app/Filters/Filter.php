@@ -13,7 +13,7 @@ abstract class Filter
 
     public function transform(Request $request): array
     {
-        $queries = [];
+        $filterItems = [];
 
         foreach ($this->filterable as $parameter => $operators) {
             $query = $request->query($parameter);
@@ -23,12 +23,12 @@ abstract class Filter
 
                 foreach ($operators as $operator) {
                     if (isset($query[$operator])) {
-                        $queries[] = [$column, $this->operators[$operator], $query[$operator]];
+                        $filterItems[] = [$column, $this->operators[$operator], $query[$operator]];
                     }
                 }
             }
         }
 
-        return $queries;
+        return $filterItems;
     }
 }
