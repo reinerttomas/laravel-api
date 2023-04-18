@@ -14,20 +14,18 @@ class PingTest extends TestCase
 
     public function test_guest_cannot_ping(): void
     {
-        $response = $this->json('get', 'api/v1/ping');
-
-        $response->assertUnauthorized();
+        $this->get('api/v1/ping')
+            ->assertUnauthorized();
     }
 
     public function test_user_can_ping(): void
     {
         Sanctum::actingAs(User::factory()->create());
 
-        $response = $this->json('get', 'api/v1/ping');
-
-        $response->assertOk();
-        $response->assertJson([
-            'message' => 'pong',
-        ]);
+        $this->get('api/v1/ping')
+            ->assertOk()
+            ->assertJson([
+                'message' => 'pong',
+            ]);
     }
 }
