@@ -3,6 +3,8 @@
 namespace App\Http\Requests\V1;
 
 use App\Enums\CustomerType;
+use App\Http\Bags\V1\StoreCustomerBag;
+use App\Http\Requests\Transformable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -13,7 +15,9 @@ class StoreCustomerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $user = $this->user();
+
+        return $user !== null && $user->tokenCan('create');
     }
 
     /**
@@ -34,10 +38,8 @@ class StoreCustomerRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation(): void
+    public function toBag(): StoreCustomerBag
     {
-        $this->merge([
-            'postal_code' => $this->postalCode,
-        ]);
+        return new StoreCustomerBag($this->validated());
     }
 }

@@ -9,7 +9,9 @@ use App\Http\Requests\V1\UpdateCustomerRequest;
 use App\Http\Resources\V1\CustomerCollection;
 use App\Http\Resources\V1\CustomerResource;
 use App\Models\Customer;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CustomerController extends Controller
 {
@@ -31,9 +33,14 @@ class CustomerController extends Controller
         return new CustomerCollection($customers);
     }
 
-    public function store(StoreCustomerRequest $request): CustomerResource
+    public function store(StoreCustomerRequest $request): JsonResponse
     {
-        return new CustomerResource(Customer::create($request->all()));
+        $customer = Customer::create($request->toBag()->attributes());
+
+        return response()->create(
+            new CustomerResource($customer),
+            Response::HTTP_CREATED,
+        );
     }
 
     /**
